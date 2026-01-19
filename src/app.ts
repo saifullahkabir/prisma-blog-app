@@ -1,9 +1,14 @@
 import express from "express";
+import { postRouter } from "./modules/post/post.route";
 
-const app = express()
+const app = express();
+
+app.use(express.json());
+
+app.use("/posts", postRouter);
 
 app.get("/", (req, res) => {
-    res.send("Blog app server is running!")
-})
+  res.send("Blog app server is running!");
+});
 
 export default app;
