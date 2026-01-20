@@ -1,6 +1,17 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // Use true for port 465, false for port 587
+  auth: {
+    user: process.env.APP_USER,
+    pass: process.env.APP_PASS,
+  },
+});
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -30,9 +41,18 @@ export const auth = betterAuth({
     autoSignIn: false,
     requireEmailVerification: true,
   },
-   emailVerification: {
-    sendVerificationEmail: async ( { user, url, token }, request) => {
-      console.log("****** Verification email send!");
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
+      const info = await transporter.sendMail({
+        from: '"Prisma Blog" <no-reply@prismablog.com>',
+        to: "wrldjuice371@gmail.com",
+        subject: "Verify your email",
+        text: "Hello world?", // Plain-text version of the message
+        html: "<b>Hello world?</b>", // HTML version of the message
+      });
+
+      console.log("Message sent:", info.messageId);
     },
   },
 });
