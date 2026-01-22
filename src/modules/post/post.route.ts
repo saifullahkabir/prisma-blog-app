@@ -4,7 +4,7 @@ import auth, { userRole } from "../../middlewares/auth";
 
 const router = Router();
 
-router.post("/", auth(userRole.USER), postController.createPost);
 router.get("/", postController.getAllPost);
+router.post("/", auth(userRole.USER), postController.createPost);
 
 export const postRouter = router;
