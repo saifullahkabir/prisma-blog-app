@@ -92,8 +92,8 @@ const getAllPost = async ({
     where:
       andConditions.length > 0
         ? {
-            AND: andConditions, // Only add AND if filters exist
-          }
+            AND: andConditions, // Only add AND if filters exist  
+          } 
         : {}, // No filters → return all posts
   });
   return result;
