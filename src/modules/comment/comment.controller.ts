@@ -69,7 +69,7 @@ const deleteComment = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "Comment delete failed",
-      error: err,
+      error: err?.message,
     });
   }
 };
