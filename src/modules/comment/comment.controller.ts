@@ -100,19 +100,23 @@ const updateComment = async (req: Request, res: Response) => {
 
 const moderateComment = async (req: Request, res: Response) => {
   try {
-    const {commentId} = req.params;
-    const {status} = req.body
-    const result = await commentService.moderateComment(commentId as string, status);
+    const { commentId } = req.params;
+    const { status } = req.body;
+    const result = await commentService.moderateComment(
+      commentId as string,
+      status,
+    );
     res.status(201).json({
       success: true,
       message: "Comment updated successfully",
       data: result,
     });
-  } catch (err: any) {
+  } catch (err) {
+    const errorMessage =
+      err instanceof Error ? err.message : "Comment updated failed!";
     res.status(500).json({
       success: false,
-      message: "Comment updated failed!",
-      error: err?.message,
+      message: errorMessage,
     });
   }
 };
@@ -123,5 +127,5 @@ export const commentController = {
   getCommentsByAuthor,
   deleteComment,
   updateComment,
-  moderateComment
+  moderateComment,
 };
