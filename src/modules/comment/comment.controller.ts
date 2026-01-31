@@ -115,7 +115,7 @@ const moderateComment = async (req: Request, res: Response) => {
     const errorMessage =
       err instanceof Error ? err.message : "Comment updated failed!";
     res.status(500).json({
-      success: false,
+      success: false, 
       message: errorMessage,
     });
   }
