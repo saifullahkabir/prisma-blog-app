@@ -190,6 +190,20 @@ const getPostById = async (postId: string) => {
 };
 
 const getMyPosts = async (authorId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: authorId,
+      status: "ACTIVE",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found or inactive");
+  }
+
   const result = await prisma.post.findMany({
     where: {
       authorId,
@@ -197,7 +211,58 @@ const getMyPosts = async (authorId: string) => {
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+    },
   });
+
+  // const total = await prisma.post.count({
+  //   where: {
+  //     authorId,
+  //   },
+  // });
+
+  return result;
+};
+
+//* USER - user can update own post, isFeatured not updateable
+//* ADMIN - admin can update all post
+const updatePost = async (
+  postId: string,
+  data: Partial<Post>,
+  authorId: string,
+  isAdmin: boolean,
+) => {
+  const postData = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+    },
+  });
+
+  if (!isAdmin && postData?.authorId !== authorId) {
+    throw new Error("You are unauthorized!");
+  }
+
+  if (!isAdmin) {
+    delete data.isFeatured;
+    delete data.views
+  }
+
+  const result = await prisma.post.update({
+    where: {
+      id: postId,
+    },
+    data,
+  });
+
   return result;
 };
 
@@ -205,5 +270,6 @@ export const postService = {
   createPost,
   getAllPost,
   getPostById,
-  getMyPosts
+  getMyPosts,
+  updatePost,
 };

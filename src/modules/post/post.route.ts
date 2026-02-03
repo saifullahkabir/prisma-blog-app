@@ -12,6 +12,16 @@ router.get(
 ); // age static route rakte hbe nahoi express e error aste pare
 router.get("/:postId", postController.getPostById); // static er pore dynamic
 
-router.post("/", auth(userRole.USER, userRole.ADMIN), postController.createPost);
+router.post(
+  "/",
+  auth(userRole.USER, userRole.ADMIN),
+  postController.createPost,
+);
+
+router.patch(
+  "/:postId",
+  auth(userRole.USER, userRole.ADMIN),
+  postController.updatePost,
+);
 
 export const postRouter = router;
