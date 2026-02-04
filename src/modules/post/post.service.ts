@@ -253,7 +253,7 @@ const updatePost = async (
 
   if (!isAdmin) {
     delete data.isFeatured;
-    delete data.views
+    delete data.views;
   }
 
   const result = await prisma.post.update({
@@ -266,10 +266,39 @@ const updatePost = async (
   return result;
 };
 
+//* USER - user cant delete own post
+//* ADMIN = admin can delete everyone's posts
+const deletePost = async (
+  postId: string,
+  authordId: string,
+  isAdmin: boolean,
+) => {
+  const postData = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+    },
+  });
+
+  if (!isAdmin && postData?.authorId !== authordId) {
+    throw new Error("You are unauthorized!");
+  }
+
+  return await prisma.post.delete({
+    where: {
+      id: postId,
+    },
+  });
+};
+
 export const postService = {
   createPost,
   getAllPost,
   getPostById,
   getMyPosts,
   updatePost,
+  deletePost
 };

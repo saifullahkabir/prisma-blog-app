@@ -3,6 +3,7 @@ import { postService } from "./post.service";
 import { PostStatus } from "../../../generated/prisma/enums";
 import paginationSortingHelper from "../../helpers/paginationSortingHelper";
 import { userRole } from "../../middlewares/auth";
+import { date } from "better-auth/*";
 
 const createPost = async (req: Request, res: Response) => {
   try {
@@ -150,10 +151,38 @@ const updatePost = async (req: Request, res: Response) => {
   }
 };
 
+const deletePost = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      throw new Error("You are unauthorized!");
+    }
+    const { postId } = req.params;
+    const isAdmin = user.role === userRole.ADMIN;
+    const result = await postService.deletePost(
+      postId as string,
+      user.id,
+      isAdmin,
+    );
+    res.status(200).json({
+      success: true,
+      message: "Post deleted successfully",
+      data: null,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Post delete failed!";
+    res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+};
+
 export const postController = {
   createPost,
   getAllPost,
   getPostById,
   getMyPosts,
   updatePost,
+  deletePost
 };
