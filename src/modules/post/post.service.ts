@@ -237,7 +237,7 @@ const updatePost = async (
   authorId: string,
   isAdmin: boolean,
 ) => {
-  const postData = await prisma.post.findUnique({
+  const postData = await prisma.post.findUniqueOrThrow({
     where: {
       id: postId,
     },
@@ -247,9 +247,6 @@ const updatePost = async (
     },
   });
 
-  if (!postData) {
-    throw new Error("Post not found");
-  }
 
   if (!isAdmin && postData?.authorId !== authorId) {
     throw new Error("You are unauthorized!");

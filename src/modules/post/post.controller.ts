@@ -22,7 +22,7 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getAllPost = async (req: Request, res: Response, next: NextFunction) => {
+const getAllPost = async (req: Request, res: Response) => {
   try {
     // Parse search query
     const { search } = req.query;
@@ -66,11 +66,15 @@ const getAllPost = async (req: Request, res: Response, next: NextFunction) => {
       data: result,
     });
   } catch (err) {
-    next(err);
+    res.status(400).json({
+      success: false,
+      message: "Failed to fetch posts",
+      error: err,
+    });
   }
 };
 
-const getPostById = async (req: Request, res: Response, next: NextFunction) => {
+const getPostById = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
 
@@ -80,11 +84,15 @@ const getPostById = async (req: Request, res: Response, next: NextFunction) => {
       data: result,
     });
   } catch (err) {
-    next(err);
+    res.status(400).json({
+      success: false,
+      message: "Failed to fetch post by id",
+      error: err,
+    });
   }
 };
 
-const getMyPosts = async (req: Request, res: Response, next: NextFunction) => {
+const getMyPosts = async (req: Request, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -97,7 +105,13 @@ const getMyPosts = async (req: Request, res: Response, next: NextFunction) => {
       data: result,
     });
   } catch (err) {
-    next(err);
+    console.log(err);
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch my posts";
+    res.status(500).json({
+      success: false,
+      message,
+    });
   }
 };
 
@@ -124,11 +138,11 @@ const updatePost = async (req: Request, res: Response, next: NextFunction) => {
       data: result,
     });
   } catch (err) {
-    next(err);
+    next(err)
   }
 };
 
-const deletePost = async (req: Request, res: Response, next: NextFunction) => {
+const deletePost = async (req: Request, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
@@ -147,11 +161,15 @@ const deletePost = async (req: Request, res: Response, next: NextFunction) => {
       data: null,
     });
   } catch (err) {
-    next(err);
+    const message = err instanceof Error ? err.message : "Post delete failed!";
+    res.status(400).json({
+      success: false,
+      message,
+    });
   }
 };
 
-const getStats = async (req: Request, res: Response, next: NextFunction) => {
+const getStats = async (req: Request, res: Response) => {
   try {
     const result = await postService.getStats();
     res.status(200).json({
@@ -160,7 +178,11 @@ const getStats = async (req: Request, res: Response, next: NextFunction) => {
       data: result,
     });
   } catch (err) {
-    next(err);
+    const message = err instanceof Error ? err.message : "Stats fetched failed";
+    res.status(400).json({
+      success: false,
+      message,
+    });
   }
 };
 
