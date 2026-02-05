@@ -29,6 +29,17 @@ function errorHandler(
       errorMessage = "Foreign key constraint failed";
     }
   }
+  //* PrismaClientUnknownRequestError
+  else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
+    statusCode = 500;
+    errorMessage = "Unexpected database error occurred";
+  } else if (err instanceof Prisma.PrismaClientRustPanicError) {
+    statusCode = 500;
+    errorMessage = "Internal server error. Please try again later.";
+  } else if (err instanceof Prisma.PrismaClientInitializationError) {
+    statusCode = 500;
+    errorMessage = "Service temporarily unavailable. Please try again later.";
+  }
 
   res.status(statusCode);
   res.json({
