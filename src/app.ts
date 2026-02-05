@@ -4,6 +4,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
 import { commentRouter } from "./modules/comment/comment.route";
+import errorHandler from "./middlewares/globalErrorHandler";
 
 const app = express();
 
@@ -24,5 +25,7 @@ app.use("/comments", commentRouter);
 app.get("/", (req, res) => {
   res.send("Blog app server is running!");
 });
+
+app.use(errorHandler);
 
 export default app;

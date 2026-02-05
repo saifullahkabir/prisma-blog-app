@@ -1,11 +1,10 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { postService } from "./post.service";
 import { PostStatus } from "../../../generated/prisma/enums";
 import paginationSortingHelper from "../../helpers/paginationSortingHelper";
 import { userRole } from "../../middlewares/auth";
-import { date, success } from "better-auth/*";
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -18,16 +17,12 @@ const createPost = async (req: Request, res: Response) => {
       success: true,
       data: result,
     });
-  } catch (err: any) {
-    res.status(400).json({
-      success: false,
-      message: "Post creation failed",
-      error: err,
-    });
+  } catch (err) {
+    next(err);
   }
 };
 
-const getAllPost = async (req: Request, res: Response) => {
+const getAllPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Parse search query
     const { search } = req.query;
@@ -71,15 +66,11 @@ const getAllPost = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to fetch posts",
-      error: err,
-    });
+    next(err);
   }
 };
 
-const getPostById = async (req: Request, res: Response) => {
+const getPostById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const postId = req.params.postId;
 
@@ -89,15 +80,11 @@ const getPostById = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to fetch post by id",
-      error: err,
-    });
+    next(err);
   }
 };
 
-const getMyPosts = async (req: Request, res: Response) => {
+const getMyPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
     if (!user) {
@@ -110,17 +97,11 @@ const getMyPosts = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    console.log(err);
-    const message =
-      err instanceof Error ? err.message : "Failed to fetch my posts";
-    res.status(500).json({
-      success: false,
-      message,
-    });
+    next(err);
   }
 };
 
-const updatePost = async (req: Request, res: Response) => {
+const updatePost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
     if (!user) {
@@ -143,15 +124,11 @@ const updatePost = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Post update failed!";
-    res.status(500).json({
-      success: false,
-      message,
-    });
+    next(err);
   }
 };
 
-const deletePost = async (req: Request, res: Response) => {
+const deletePost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
     if (!user) {
@@ -170,15 +147,11 @@ const deletePost = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Post delete failed!";
-    res.status(400).json({
-      success: false,
-      message,
-    });
+    next(err);
   }
 };
 
-const getStats = async (req: Request, res: Response) => {
+const getStats = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await postService.getStats();
     res.status(200).json({
@@ -187,11 +160,7 @@ const getStats = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Stats fetched failed";
-    res.status(400).json({
-      success: false,
-      message,
-    });
+    next(err);
   }
 };
 
