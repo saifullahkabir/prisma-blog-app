@@ -247,6 +247,10 @@ const updatePost = async (
     },
   });
 
+  if (!postData) {
+    throw new Error("Post not found");
+  }
+
   if (!isAdmin && postData?.authorId !== authorId) {
     throw new Error("You are unauthorized!");
   }
@@ -283,6 +287,10 @@ const deletePost = async (
     },
   });
 
+  if (!postData) {
+    throw new Error("Post not found");
+  }
+
   if (!isAdmin && postData?.authorId !== authordId) {
     throw new Error("You are unauthorized!");
   }
@@ -294,11 +302,56 @@ const deletePost = async (
   });
 };
 
+const getStats = async () => {
+  return await prisma.$transaction(async (tx) => {
+    const [
+      totalPosts,
+      publishedPosts,
+      draftPosts,
+      archivedPosts,
+      totalViews,
+      totalComments,
+      approvedComments,
+      rejectComments,
+      totalUsers,
+      adminCount,
+      userCount,
+    ] = await Promise.all([
+      await tx.post.count(),
+      await tx.post.count({ where: { status: PostStatus.PUBLISHED } }),
+      await tx.post.count({ where: { status: PostStatus.DRAFT } }),
+      await tx.post.count({ where: { status: PostStatus.ARCHIVED } }),
+      await tx.post.aggregate({ _sum: { views: true } }),
+      await tx.comment.count(),
+      await tx.comment.count({ where: { status: CommentStatus.APPROVED } }),
+      await tx.comment.count({ where: { status: CommentStatus.REJECT } }),
+      await tx.user.count(),
+      await tx.user.count({ where: { role: "ADMIN" } }),
+      await tx.user.count({ where: { role: "USER" } }),
+    ]);
+
+    return {
+      totalPosts,
+      publishedPosts,
+      draftPosts,
+      archivedPosts,
+      totalViews: totalViews._sum.views,
+      totalComments,
+      approvedComments,
+      rejectComments,
+      totalUsers,
+      adminCount,
+      userCount,
+    };
+  });
+};
+
 export const postService = {
   createPost,
   getAllPost,
   getPostById,
   getMyPosts,
   updatePost,
-  deletePost
+  deletePost,
+  getStats,
 };

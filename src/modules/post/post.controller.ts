@@ -3,7 +3,7 @@ import { postService } from "./post.service";
 import { PostStatus } from "../../../generated/prisma/enums";
 import paginationSortingHelper from "../../helpers/paginationSortingHelper";
 import { userRole } from "../../middlewares/auth";
-import { date } from "better-auth/*";
+import { date, success } from "better-auth/*";
 
 const createPost = async (req: Request, res: Response) => {
   try {
@@ -178,11 +178,29 @@ const deletePost = async (req: Request, res: Response) => {
   }
 };
 
+const getStats = async (req: Request, res: Response) => {
+  try {
+    const result = await postService.getStats();
+    res.status(200).json({
+      success: true,
+      message: "Stats fetched successfully",
+      data: result,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Stats fetched failed";
+    res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+};
+
 export const postController = {
   createPost,
   getAllPost,
   getPostById,
   getMyPosts,
   updatePost,
-  deletePost
+  deletePost,
+  getStats,
 };
